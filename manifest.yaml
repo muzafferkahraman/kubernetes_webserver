@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: muzos
+spec:
+  selector:
+    matchLabels:
+      prio: high
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        prio: high
+    spec:
+      containers:
+      - name: contentmaker
+        image: exchangecontent:latest
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - mountPath: /data
+          name: data
+        envFrom:
+        - configMapRef:
+            name: proxy-config
+      - name: nginx
+        image: nginx
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/
+          name: content
+      volumes:
+      - name: data
+        hostPath:
+          path: /data
+      - name: content
+        hostPath:
+          path: /data
